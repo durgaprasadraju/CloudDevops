@@ -120,7 +120,7 @@ AWS Lambda, Python(Boto3) & Serverless- Beginner to Advanced/
 ├── 3.Integrations/README.md
 ├── 4.Security-Monitoring/README.md
 ├── 5.Deployment/README.md
-└── BasicConcepts/                 ← Reference slides
+└── docs/aws/lambda/README.md    ← Consolidated Lambda guide
 ```
 
 ---
@@ -193,17 +193,10 @@ Step 7  →  Add canary deployments, alarms, and cost optimization
 
 ## Reference Materials
 
-Course slides and diagrams live in [`BasicConcepts/`](BasicConcepts/):
+Diagrams are **inline Mermaid** in each module README (no external image files required). Start with:
 
-| File | Topic |
-|------|-------|
-| `1.lambda-basic-concepts.png` | Course overview — Part 1 |
-| `2.CloudServices.png` | IaaS vs PaaS vs SaaS vs FaaS |
-| `3.Lambda_Definition.png` | AWS Lambda definition |
-| `4.Use Case.png` | When to use / not use Lambda |
-| `5.Use case examples.png` | Image processing & REST API |
-| `6.Architecture.png` | EC2 vs Lambda architecture |
-| `7.Execution Role.png` | Lambda execution role |
+- [Fundamentals — diagrams for Lambda basics, architecture, and use cases](./1.Fundamentals/README.md)
+- [Consolidated Lambda guide](../docs/aws/lambda/README.md)
 
 ---
 

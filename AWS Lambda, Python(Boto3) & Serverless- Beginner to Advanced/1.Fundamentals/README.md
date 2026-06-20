@@ -47,7 +47,12 @@ In plain terms: you write a function, upload it to AWS, and AWS runs it when som
 | **Event-driven** | Runs in response to events (triggers) |
 | **Serverless** | No servers for you to manage |
 
-![Lambda Definition](../BasicConcepts/3.Lambda_Definition.png)
+```mermaid
+flowchart LR
+    EVENT[Event Trigger\nS3 · API GW · Schedule] --> L[AWS Lambda\nYour Code]
+    L --> AWS[AWS Managed\nRuntime · Scaling · HA · Logs]
+    L --> OUT[Output\nDynamoDB · S3 · SNS]
+```
 
 ### Simple Analogy
 
@@ -75,7 +80,25 @@ Fixed capacity        Elastic capacity       Elastic capacity       Auto-scales 
 Pay 24/7              Pay per hour           Pay for running pods   Pay per millisecond
 ```
 
-![Cloud Services Comparison](../BasicConcepts/2.CloudServices.png)
+```mermaid
+flowchart TB
+    subgraph IaaS["IaaS — EC2"]
+        I1[You: OS + App]
+        I2[AWS: Hardware + Network]
+    end
+    subgraph PaaS["PaaS — Elastic Beanstalk"]
+        P1[You: App + Data]
+        P2[AWS: OS + Runtime + Infra]
+    end
+    subgraph SaaS["SaaS — Gmail, Salesforce"]
+        S1[You: Data + Access]
+        S2[AWS: Everything else]
+    end
+    subgraph FaaS["FaaS — AWS Lambda"]
+        F1[You: Function Code only]
+        F2[AWS: Runtime + OS + Scaling + HA]
+    end
+```
 
 ### IaaS vs PaaS vs SaaS vs FaaS
 
@@ -152,7 +175,17 @@ Knowing Lambda's limits helps you choose the right tool for the job.
 | Stateful applications | Lambda is stateless | EC2, ECS with persistent storage |
 | WebSocket long connections | 15-min limit applies | API Gateway WebSocket + DynamoDB |
 
-![When to Use Lambda](../BasicConcepts/4.Use%20Case.png)
+```mermaid
+flowchart TD
+    START{Workload type?}
+    START -->|Event-driven, variable traffic| USE[✅ Use Lambda]
+    START -->|Short tasks under 15 min| USE
+    START -->|Unpredictable scale| USE
+    START -->|Long-running over 15 min| NO[❌ EC2 / Step Functions]
+    START -->|Steady 24/7 high traffic| NO2[❌ EC2 Reserved]
+    START -->|GPU or full OS control| NO3[❌ EC2 / ECS]
+    START -->|Large monolith package| NO4[❌ Container on Lambda or ECS]
+```
 
 ### AWS Lambda Service Limits (Key Ones)
 
@@ -194,7 +227,20 @@ Lambda works best for **event-driven** workloads with **unpredictable or variabl
 | **Notification systems** | SNS, SQS | Send emails, SMS, push notifications |
 | **Serverless cron jobs** | EventBridge schedule | Run code on a cron expression |
 
-![Use Case Examples](../BasicConcepts/5.Use%20case%20examples.png)
+```mermaid
+flowchart LR
+    subgraph ImageProcessing["Image Processing"]
+        U1[User Upload] --> S3A[(S3 Original)]
+        S3A --> L1[Lambda Resize]
+        L1 --> S3B[(S3 Thumbnails)]
+    end
+
+    subgraph RestAPI["REST API Backend"]
+        APP[Mobile / Web App] --> APIGW[API Gateway]
+        APIGW --> L2[Lambda Handler]
+        L2 --> DDB[(DynamoDB)]
+    end
+```
 
 ### Real-World Scenario 1: Photo Upload App
 
@@ -261,7 +307,20 @@ Application → CloudWatch Logs → Lambda (filter & format) → Elasticsearch /
   SQS, etc.
 ```
 
-![Lambda Architecture](../BasicConcepts/6.Architecture.png)
+```mermaid
+flowchart TB
+    subgraph EC2["EC2 — You manage OS + scaling"]
+        A1[App 1] --- A2[App 2] --- A3[App 3]
+        A1 & A2 & A3 --> GOS[Guest OS — You manage]
+        GOS --> HW1[Hypervisor / Hardware]
+    end
+
+    subgraph Lambda["Lambda — You manage code only"]
+        CODE[Your Code + Runtime — You manage]
+        CODE --> SANDBOX[Sandbox / Guest OS — AWS manages]
+        SANDBOX --> HW2[Hypervisor / Hardware]
+    end
+```
 
 ### Lambda Internal Architecture (Layers)
 
@@ -331,7 +390,14 @@ sequenceDiagram
     L-->>ES: Return result
 ```
 
-![Execution Role](../BasicConcepts/7.Execution%20Role.png)
+```mermaid
+flowchart LR
+    L[Lambda Function] -->|AssumeRole| ROLE[IAM Execution Role]
+    ROLE --> CW[CloudWatch Logs]
+    ROLE --> S3[S3]
+    ROLE --> DDB[DynamoDB]
+    ROLE --> SM[Secrets Manager]
+```
 
 ---
 
@@ -797,17 +863,16 @@ aws logs tail /aws/lambda/my-function --follow
 
 ## Course Materials
 
-Reference diagrams and slides are available in the [`../BasicConcepts/`](../BasicConcepts/) folder:
+Diagrams in this guide use **inline Mermaid** (render in GitHub, VS Code, and Cursor Markdown preview). Topics covered:
 
-| File | Topic |
-|------|-------|
-| `1.lambda-basic-concepts.png` | Course overview — Part 1 topics |
-| `2.CloudServices.png` | IaaS vs PaaS vs SaaS vs FaaS |
-| `3.Lambda_Definition.png` | AWS official Lambda definition |
-| `4.Use Case.png` | When to use / not use Lambda |
-| `5.Use case examples.png` | Image processing & REST API examples |
-| `6.Architecture.png` | EC2 vs Lambda architecture |
-| `7.Execution Role.png` | Lambda execution role |
+| Section | Diagram Topic |
+|---------|---------------|
+| What is AWS Lambda? | Event-driven Lambda flow |
+| Serverless Computing | IaaS vs PaaS vs SaaS vs FaaS |
+| Limitations | When to use / not use Lambda |
+| Use Cases | Image processing & REST API examples |
+| Architecture | EC2 vs Lambda comparison |
+| Architecture | Execution role permissions |
 
 ---
 
